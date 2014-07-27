@@ -33,7 +33,7 @@ check `src/pac-config.js` for more config options available.
 
 
 Then all things done with one command
-```json
+```bash
 $ node index.js
 ```
 
@@ -45,7 +45,7 @@ There is approximate 1.6 MB data to download.
 
 You can do it yourself using this command
 
-```json
+```bash
 $ curl http://ftp.apnic.net/apnic/stats/apnic/delegated-apnic-latest -O
 ```
 
