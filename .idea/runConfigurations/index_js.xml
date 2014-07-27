@@ -1,0 +1,7 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="index.js" type="NodeJSConfigurationType" factoryName="Node.js" path-to-node="/opt/local/bin/node" path-to-js-file="index.js" working-dir="$PROJECT_DIR$">
+    <RunnerSettings RunnerId="NodeJS.run" />
+    <ConfigurationWrapper RunnerId="NodeJS.run" />
+    <method />
+  </configuration>
+</component>
