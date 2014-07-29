@@ -11,7 +11,7 @@ function FindProxyForURL(url, host) {
 
     var safeProxy = '{{internalProxy}}';
     var proxy = '{{proxy}}';
-    var direct = 'DIRECT;';
+    var direct = 'DIRECT';
 
 
     function ip4ToInt(ipv4) {
@@ -41,29 +41,29 @@ function FindProxyForURL(url, host) {
 
 
     function matchIp(ip, list) {
-        if (list.length == 0)
+        if (list.length == 0) {
             return false;
+        }
+
         var left = 0, right = list.length;
         do {
             var mid = Math.floor((left + right) / 2);
-            var ip_f = (ip & list[mid][1]) >>> 0;
-            var m = (list[mid][0] & list[mid][1]) >>> 0;
-            if (ip_f == m) {
-                return true;
-            } else if (ip_f > m) {
+            if (ip < list[mid][0]) {
+                right = mid;
+            } else if (ip >= list[mid][1]) {
                 left = mid + 1;
             } else {
-                right = mid;
+                return true;
             }
         } while (left + 1 <= right);
         return false;
     }
 
     var proxies = [
-        null,                                               //
-        direct,                                             // 1 - LOCAL
-        (safeProxy ? (safeProxy + ';' + direct) : direct),  // 2 - SAFE
-        (proxy + ';' + direct)                              // 3 - GFW blocks
+        null,                                                //
+        direct,                                              // 1 - LOCAL
+        (safeProxy ? (safeProxy + '; ' + direct) : direct),  // 2 - SAFE
+        (proxy + '; ' + direct)                              // 3 - GFW blocks
     ];
 
     // noinspection JSUnresolvedFunction

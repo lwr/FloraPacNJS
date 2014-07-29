@@ -5,35 +5,52 @@ var pacTemplate = fs.readFileSync(path.dirname(module.filename) + "/" +
         "flora.pac.template.js", {encoding : "utf8"});
 
 // jshint -W103:false
-var config = require("./pac-config.js");
-var userConfig = JSON.parse(fs.readFileSync("pac-config.json") || "{}");
+var baseConfig = require("./pac-config");
 
-for (var key in userConfig) {
-    if (userConfig.hasOwnProperty(key)) {
-        if (Array.isArray(config[key])) {
-            Array.prototype.push.apply(config[key], userConfig[key]);
-        } else {
-            config[key] = userConfig[key];
-        }
-    }
+if (process.mainModule === module) {
+    floraPac();
 }
 
-var cnIpList = [];
-fetchChnIpList(function (startIpInt, endIpInt, date) {
-    cnIpList.push([startIpInt, endIpInt]);
-    if (config.debug) {
-        console.log("Found chn ip: %s - %s at %s", intToIPv4(startIpInt), intToIPv4(endIpInt), date);
+module.exports = floraPac;
+
+function floraPac(userConfig) {
+    // do a copy
+    var config = JSON.parse(JSON.stringify(baseConfig));
+
+    if (userConfig == null) {
+        userConfig = JSON.parse(fs.readFileSync("pac-config.json") || "{}");
     }
-}, function (ok) {
-    if (ok) {
-        var pacData = generatePac();
-        fs.writeFileSync(config.file, pacData, {encoding : 'utf8'});
-        console.log("File generated:", config.file);
+
+    for (var key in userConfig) {
+        if (userConfig.hasOwnProperty(key)) {
+            if (Array.isArray(config[key])) {
+                Array.prototype.push.apply(config[key], userConfig[key]);
+            } else {
+                config[key] = userConfig[key];
+            }
+        }
     }
-});
+
+    var cnIpList = [];
+    fetchChnIpList(function (startIpInt, endIpInt, date) {
+        cnIpList.push([startIpInt, endIpInt]);
+        if (config.debug) {
+            console.log("Found chn ip: %s - %s at %s", intToIPv4(startIpInt), intToIPv4(endIpInt), date);
+        }
+    }, function (ok) {
+        if (ok) {
+            var pacData = generatePac(config, cnIpList);
+            fs.writeFileSync(config.file, pacData, {encoding : 'utf8'});
+            console.log("File generated:", config.file);
+            if (config.callback) {
+                config.callback();
+            }
+        }
+    });
+}
 
 
-function generatePac() {
+function generatePac(config, cnIpList) {
     var result = pacTemplate;
     config["domains"] = config["domains"] || {};
     for (var key in config) {

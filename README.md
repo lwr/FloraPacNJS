@@ -6,8 +6,9 @@ A NodeJS port of [Flora PAC](https://github.com/Leask/Flora_Pac) generator.
 
 ## Requirement / Installation
 
-* NodeJS
-* git clone or just download all files
+* NodeJS of course
+
+No any further installation is required
 
 ## Configuration / Usage
 
@@ -32,10 +33,28 @@ make a config file `pac-config.json` like this
 check `src/pac-config.js` for more config options available.
 
 
-Then all things done with one command
+All things done with only one command
 ```bash
-$ node index.js
+$ node .
 ```
+
+the default output file is `flora.pac`
+
+## Tests
+
+You could run a simple test (assume that `flora.pac` is already generated)
+```bash
+$ npm install
+$ ./pacTest flora.pac twitter.com
+$ node test/pacTest flora.pac twitter.com
+```
+
+Or run batch tests
+```bash
+$ npm install
+$ node test/test
+```
+
 
 ## To speed up
 
@@ -53,9 +72,12 @@ This will help PAC generating speed up much faster.
 
 
 ## TODO:
-- [ ] Basic help info
-- [ ] Support `--proxy / --internal-proxy / --file` command-line
-- [ ] Update / Sync China Domains (NormalDomains) from somewhere
+- [X] Support tests
+- [ ] Support `--proxy / --internal-proxy / --file` command-line arguments
+- [ ] Command-line help
+- [ ] Support user rule text config file format (will import to `walledDomains / normalDomains`)
+- [ ] Support gfw list file (pac will be much bigger)
+- [ ] Sync China Domains (that is, `normalDomains`) from other where
 
 
 ## See also

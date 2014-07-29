@@ -1,3 +1,2 @@
-
-require('./src/flora.js');
+require('./src/flora.js')();
 
