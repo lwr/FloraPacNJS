@@ -30,7 +30,7 @@ make a config file `pac-config.json` like this
 }
 ```
 
-check `src/pac-config.js` for more config options available.
+check [src/pac-config.js](src/pac-config.js) for more config options available.
 
 
 All things done with only one command
@@ -75,6 +75,7 @@ This will help PAC generating speed up much faster.
 - [X] Support tests
 - [ ] Support `--proxy / --internal-proxy / --file` command-line arguments
 - [ ] Command-line help
+- [ ] Generate minimal pac file liked `flora.min.pac`
 - [ ] Support user rule text config file format (will import to `walledDomains / normalDomains`)
 - [ ] Support gfw list file (pac will be much bigger)
 - [ ] Sync China Domains (that is, `normalDomains`) from other where
