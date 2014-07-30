@@ -15,6 +15,8 @@
         "optimist" : "~0.6.0"
     },
     "keywords"        : ["flora", "pac", "proxy.pac"],
-    "scripts"         : {"test" : "echo 'Error: no test specified' && exit 1"},
+    "scripts"         : {
+        "test" : "echo 'Error: no test specified' && exit 1"
+    },
     "license"         : "MIT"
 }

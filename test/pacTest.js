@@ -1,15 +1,12 @@
 /**
  *
  * ---------- usage -------------------------------------------------
- *
- *      var FindProxyForURL = require("./test/pacTest")("flora.pac");
- *
- *      FindProxyForURL(null, "twitter.com");
- *
- *      FindProxyForURL(null, "twitter.com", function (proxy) {
- *          console.log(proxy);
- *      });
- *
+
+ var FindProxyForURL = require("./test/pacTest")("flora.pac");
+ require('fibers')(function() {
+     console.log(FindProxyForURL(null, "twitter.com"));
+ }).run();
+
  */
 
 
@@ -21,7 +18,7 @@ var Future = require('fibers/future');
 
 module.exports = pacTester;
 
-function pacTester(pacFile) {
+function pacTester(pacFile, context_) {
 
     var pacData = fs.readFileSync(pacFile).toString();
 
@@ -31,27 +28,25 @@ function pacTester(pacFile) {
             return (host.indexOf('.') == -1)
         },
         dnsResolve      : function (host) {
-            adapterFn.dnsResolveResult = Future.wrap(dns.lookup)(host, null).wait();
-            return adapterFn.dnsResolveResult;
+            FindProxyForURL.dnsResolveResult = Future.wrap(dns.lookup)(host, null).wait();
+            return FindProxyForURL.dnsResolveResult;
         },
         console         : console
     };
 
-    var FindProxyForURL = vm.runInNewContext(pacData + "; FindProxyForURL", context, pacFile);
-
-    if (typeof FindProxyForURL == "function") {
-        var adapterFn = function (url, host, callback) {
-            new Fiber(function () {
-                adapterFn.dnsResolveResult = null;
-                var proxy = FindProxyForURL(url, host);
-                (callback || console.info)(proxy);
-            }).run();
-        };
-        return adapterFn;
+    for (var i in context_) {
+        if (context_.hasOwnProperty(i)) {
+            context[i] = context_[i];
+        }
     }
 
-    console.error("Invalid pac file:", pacFile);
-    return function () {};
+    var FindProxyForURL = vm.runInNewContext(pacData + "; FindProxyForURL", context, pacFile);
+    if (typeof FindProxyForURL == "function") {
+        return FindProxyForURL;
+    } else {
+        console.error("Invalid pac file:", pacFile);
+        return function () {};
+    }
 }
 
 
@@ -63,13 +58,14 @@ if (process.mainModule === module) {
     var host = argv._[1];
 
     if (filename && host) {
-        var adapterFn = pacTester(filename);
-        adapterFn(null, host, function (proxy) {
-            if (adapterFn.dnsResolveResult) {
-                console.info("Host '%s' resolved to: %s", host, adapterFn.dnsResolveResult);
+        var FindProxyForURL = pacTester(filename);
+        Fiber(function () {
+            var proxy = FindProxyForURL(null, host);
+            if (FindProxyForURL.dnsResolveResult) {
+                console.info("Host '%s' was resolved to: %s", host, FindProxyForURL.dnsResolveResult);
             }
             console.info(proxy);
-        });
+        }).run();
     } else {
         console.info(""
                 + "Usage: pacTest [PAC_FILE] [HOSTNAME]\n"

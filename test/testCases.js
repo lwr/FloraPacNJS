@@ -15,33 +15,37 @@ function testCases(FindProxyForURL, proxy) {
 
     function assertProxy(expect, host) {
         ++totalCount;
-        FindProxyForURL(null, host, function (actual) {
-            if ((expect == actual) || (expect == proxy && actual == proxy + "; DIRECT")) {
-                ++successCount;
-                return;
-            }
+        FindProxyForURL.dnsResolveResult = null;
+        var actual = FindProxyForURL(null, host);
+        if ((expect == actual) || (expect == proxy && actual == proxy + "; DIRECT")) {
+            ++successCount;
+            return;
+        }
 
-            ++failCount;
-            var ip = FindProxyForURL.dnsResolveResult;
-            if (ip) {
-                console.error("Test failed: host=%s(%s), expect=%s, actual=%s", host, ip, expect, actual);
-            } else {
-                console.error("Test failed: host=%s, expect=%s, actual=%s", host, expect, actual);
-            }
-        });
+        ++failCount;
+        var ip = FindProxyForURL.dnsResolveResult;
+        if (ip) {
+            console.error("Test failed: host=%s(%s), expect=%s, actual=%s", host, ip, expect, actual);
+        } else {
+            console.error("Test failed: host=%s, expect=%s, actual=%s", host, expect, actual);
+        }
     }
 
-    var x = setInterval(function () {
-        if (successCount + failCount == totalCount) {
-            clearInterval(x);
-            if (failCount) {
-                console.assert(false,
-                        "Test result: total=%d, success=%d, failed=%d", totalCount, successCount, failCount);
-            } else {
-                console.info("Test passed: total=%d", totalCount);
-            }
+
+    var time = process.hrtime();
+
+    function endTest() {
+        var diff = process.hrtime(time);
+        var seconds = (diff[0] * 1e3 + diff[1] * 1e-6);
+        if (failCount) {
+            console.info("Test end in %d ms, average in %d ms", seconds, seconds / (successCount + failCount));
+            console.assert(false,
+                    "Test result: total=%d, success=%d, failed=%d", totalCount, successCount, failCount);
+        } else {
+            console.info("Test passed in %d ms, average in %d ms, total=%d",
+                    seconds, seconds / totalCount, totalCount);
         }
-    }, 100);
+    }
 
 
     assertProxy(proxy, 'www.google.com');
@@ -71,5 +75,8 @@ function testCases(FindProxyForURL, proxy) {
     assertProxy(direct, 'www.youku.com');
     // noinspection SpellCheckingInspection
     assertProxy(direct, 'www.taobao.com');
+    assertProxy(direct, 'www.iCoremail.net');
+
+    endTest();
 }
 

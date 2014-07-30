@@ -15,7 +15,9 @@ require("../src/flora")({
         console.info("File dropped:", this.file);
 
         // run test cases
-        require('./testCases')(FindProxyForURL, this.proxy);
+        require('fibers')(
+                require('./testCases').bind(null, FindProxyForURL, this.proxy)
+        ).run();
     }
 });
 
