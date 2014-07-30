@@ -2,7 +2,11 @@
   <dictionary name="general">
     <words>
       <w>apnic</w>
+      <w>clowwindy</w>
+      <w>gfwlist</w>
       <w>jshint</w>
+      <w>switchy</w>
+      <w>switchysharp</w>
     </words>
   </dictionary>
 </component>

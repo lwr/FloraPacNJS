@@ -1,11 +1,19 @@
 /**
- * This test case should run after the pac script
+ * This test case should run after the pac script.
+ *
+ * @type {exports} a wrapped fiber function wait to run test cases
  */
 
 
 module.exports = testCases;
 
-function testCases(FindProxyForURL, proxy) {
+
+function testCases() {
+    return require('./Fiber').applyWith(runTestCases, null, arguments);
+}
+
+
+function runTestCases(name, FindProxyForURL, proxy) {
 
     var direct = 'DIRECT';
 
@@ -38,12 +46,12 @@ function testCases(FindProxyForURL, proxy) {
         var diff = process.hrtime(time);
         var seconds = (diff[0] * 1e3 + diff[1] * 1e-6);
         if (failCount) {
-            console.info("Test end in %d ms, average in %d ms", seconds, seconds / (successCount + failCount));
+            console.info("%s end in %d ms, average in %d ms", name, seconds, seconds / (successCount + failCount));
             console.assert(false,
-                    "Test result: total=%d, success=%d, failed=%d", totalCount, successCount, failCount);
+                    "%s result: total=%d, success=%d, failed=%d", name, totalCount, successCount, failCount);
         } else {
-            console.info("Test passed in %d ms, average in %d ms, total=%d",
-                    seconds, seconds / totalCount, totalCount);
+            console.info("%s passed in %d ms, average in %d ms, total=%d",
+                    name, seconds, seconds / totalCount, totalCount);
         }
     }
 
