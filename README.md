@@ -77,7 +77,7 @@ The Performance test code is just copied from [clowwindy's gfwlist2pac][gfwlist2
 
 An example of generated PAC file is [here](test/flora.pac)
 
-Flora Pac uses `dnsResolve` which will makes the execute time very unpredictable.
+Flora Pac uses `dnsResolve` which makes the execution time very unpredictable.
 
 The test code is modified that **return a random IP every time while lookup any host**.
 
