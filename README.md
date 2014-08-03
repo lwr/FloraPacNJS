@@ -112,7 +112,8 @@ average: 606.0726647398843 ns
 
 
 ## See also
-* [The original python Flora_Pac][Flora Pac]
+* [Python original Flora Pac][Flora Pac]
+* [Python fork by usufu](https://github.com/usufu/Flora_Pac)
 * [clowwindy's gfwlist2pac][gfwlist2pac]
 
 
