@@ -13,6 +13,7 @@ if (process.mainModule === module) {
     var filename = require('optimist').argv._[0];
     var repeat = require('optimist').argv._[1];
 
+    // noinspection JSUnusedGlobalSymbols
     var FindProxyForURL = require("./pacTest")(filename, {
         // use a random dns resolver to avoid dns lookup
         dnsResolve : function () {
@@ -32,6 +33,8 @@ if (process.mainModule === module) {
         }
     });
 
+    FindProxyForURL.filename = filename;
+    // wrap the test in setTimeout to make leaving urls definition at the end of file possible
     setTimeout(function () {
         performanceTest(FindProxyForURL, repeat).run();
     }, 0);
@@ -41,18 +44,18 @@ if (process.mainModule === module) {
 function runPerformanceTest(FindProxyForURL, repeat) {
     repeat = parseInt(repeat) || 100;
 
+    console.log('   size: %d bytes', require("fs").statSync(FindProxyForURL.filename).size);
     var time = process.hrtime();
 
     for (var j = 0; j < repeat; j++) {
-        for (var i in urls) {
-            var url = urls[i];
+        urls.forEach(function (url) {
             FindProxyForURL(url, url);
-        }
+        });
     }
 
     var diff = process.hrtime(time);
-    console.log('total: ' + (diff[0] * 1e3 + diff[1] * 1e-6) + 'ms');
-    console.log('avg: ' + (diff[0] * 1e3 + diff[1] * 1e-6) * 1e3 / repeat / urls.length + 'ns');
+    console.log('  total: %d ms', (diff[0] * 1e3 + diff[1] * 1e-6));
+    console.log('average: %d ns', (diff[0] * 1e6 + diff[1] * 1e-3) / (repeat * urls.length));
 }
 
 

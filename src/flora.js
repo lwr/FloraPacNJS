@@ -1,5 +1,7 @@
 var path = require('path');
 var fs = require('fs');
+var ip4ToInt = require('./ip2int').ip4ToInt;
+var intToIP4 = require('./ip2int').intToIP4;
 
 var pacTemplate = fs.readFileSync(path.dirname(module.filename) + "/" +
         "flora.pac.template.js", {encoding : "utf8"});
@@ -31,15 +33,16 @@ function floraPac(userConfig) {
         }
     }
 
-    var cnIpList = [];
-    fetchChnIpList(function (startIpInt, endIpInt, date) {
-        cnIpList.push([startIpInt, endIpInt]);
+    config["ips"] = config["ips"] || [];
+    fetchChnIpList(function (ip, count, date) {
+        var data = [ip4ToInt(ip), parseInt(count)];
+        config["ips"].push(data);
         if (config.debug) {
-            console.log("Found chn ip: %s - %s at %s", intToIPv4(startIpInt), intToIPv4(endIpInt), date);
+            console.log("Found chn ip: %s - %s at %s", ip, intToIP4(data[1]), date);
         }
     }, function (ok) {
         if (ok) {
-            var pacData = generatePac(config, cnIpList);
+            var pacData = generatePac(config);
             fs.writeFileSync(config.file, pacData, {encoding : 'utf8'});
             console.log("File generated:", config.file);
             if (config.callback) {
@@ -50,93 +53,94 @@ function floraPac(userConfig) {
 }
 
 
-function generatePac(config, cnIpList) {
-    var result = pacTemplate;
-    config["domains"] = config["domains"] || {};
+function generatePac(config) {
+    // 1: LOCAL (INTRANET), 2: NORMAL (CHINA-NET), 3: GFWed (INTERNET), 4: poisoned
     for (var key in config) {
-        var domainValue = null;
-        var ipList, i;
         if (!config.hasOwnProperty(key)) {
             // noinspection UnnecessaryContinueJS
             continue;
 
-        } else if (["normalIps", "localIps"].indexOf(key) != -1) {
-            ipList = (key == "normalIps") ? cnIpList : [];
-            for (i in config[key]) {
-                if (config[key].hasOwnProperty(i)) {
-                    var ipRange = config[key][i];
-                    var start = ip4ToInt(ipRange[0]);
-                    var end = ip4ToInt(ipRange[1]);
-                    if ((ipRange.length == 2) && (start != null) && (start <= end)) {
-                        ipList.push([start, end]);
-                    } else {
-                        console.log("Found invalid ip range of '" + key + "':", ipRange);
-                    }
-                }
-            }
-            ipList.sort(function (r1, r2) {return r1[0] - r2[0]});
-            config[key] = ipList;
-
-        } else if (["fakeIps"].indexOf(key) != -1) {
-            ipList = [];
-            for (i in config[key]) {
-                if (config[key].hasOwnProperty(i)) {
-                    var value = ip4ToInt(config[key][i]);
-                    if (value != null) {
-                        ipList.push(value);
-                    } else {
-                        console.log("Found invalid ip of '" + key + "':", config[key][i]);
-                    }
-                }
-            }
-            ipList.sort();
-            config[key] = ipList;
+        } else if (key == "localIps") {
+            readIpList(key, 1);
+        } else if (key == "normalIps") {
+            readIpList(key, 2);
+        } else if (key == "fakeIps") {
+            readIpList(key, 4);
 
         } else if (key == "localDomains") {
-            domainValue = 1;
+            readDomainList(key, 1);
         } else if (key == "normalDomains") {
-            domainValue = 2;
+            readDomainList(key, 2);
         } else if (key == "walledDomains") {
-            domainValue = 3;
-        }
-
-        if (domainValue) {
-            for (i in config[key]) {
-                if (config[key].hasOwnProperty(i)) {
-                    config["domains"][config[key][i]] = domainValue;
-                }
-            }
+            readDomainList(key, 3);
         }
     }
 
+    function readIpList(key, action) {
+        config["ips"] = config["ips"] || [];
+        config[key].forEach(function (item) {
+            if (typeof item == 'string') {
+                var value = ip4ToInt(item);
+                if (value != null) {
+                    config["ips"].push([value, 1, action]);
+                    return;
+                }
+            } else if (item.length == 2) {
+                var start = ip4ToInt(item[0]);
+                var end = ip4ToInt(item[1]);
+                var count = (start < end) ? (end - start) : item[1];
+                if ((start > 0) && (count > 0)) {
+                    config["ips"].push((action == 2) ? [start, count] : [start, count, action]);
+                    return;
+                }
+            }
+            console.log("Found invalid ip of '" + key + "':", item);
+        });
+    }
+
+    function readDomainList(key, action) {
+        config["domains"] = config["domains"] || {};
+        config[key].forEach(function (domain) {
+            config["domains"][domain] = action;
+        });
+    }
+
+    config["ips"].sort(function (r1, r2) {return r1[0] - r2[0]});
+    config["ips"].forEach(function (item, i, ips) {
+        var previousItem = ips[i - 1];
+        if (i > 0 && (ips[0] < previousItem[0] + previousItem[1])) {
+            console.error("Collapsed ip: [%s ~ %s], [%s ~ %s]",
+                    ip4ToInt(previousItem[0]), ip4ToInt(previousItem[0] + previousItem[1]),
+                    ip4ToInt(item[0]), ip4ToInt(item[0] + item[1]));
+        }
+        if (i > 0 && (ips[0] == previousItem[0] + previousItem[1])) {
+            console.info("ip can be merge: [%s ~ %s], [%s ~ %s]",
+                    ip4ToInt(previousItem[0]), ip4ToInt(previousItem[0] + previousItem[1]),
+                    ip4ToInt(item[0]), ip4ToInt(item[0] + item[1]));
+        }
+    });
+
+
+    config["proxies"] = [
+        null,                                                                               // 0: UNKNOWN
+        'DIRECT',                                                                           // 1: LOCAL  (INTRANET)
+        (config['internalProxy'] ? (config['internalProxy'] + '; ' + 'DIRECT') : 'DIRECT'), // 2: NORMAL (CHINA-NET)
+        (config['proxy'] + '; ' + 'DIRECT'),                                                // 3: GFWed  (INTERNET)
+        (config['proxy'])                                                                   // 4: poisoned
+    ];
+
+    var result = pacTemplate;
     for (key in config) {
         if (config.hasOwnProperty(key)) {
-            if ((config[key] != null) && (typeof config[key] == "object")) {
-                result = result.replace("\"{{" + key + "}}\"", JSON.stringify(config[key]));
-            } else {
-                result = result.replace("{{" + key + "}}", config[key] || "");
-            }
+            result = result.replace("{/*{" + key + "}*/}", JSON.stringify(config[key]));
+            result = result.replace("[/*[" + key + "]*/]", JSON.stringify(config[key]));
+            result = result.replace("'{{" + key + "}}'", JSON.stringify(config[key]));
         }
     }
     return result;
 }
 
-
-function ip4ToInt(ipv4) {
-    var b = ipv4.split('.', 4);
-    return (b.length == 4)
-            && (b[0] >= 0 && b[0] <= 255)
-            && (b[1] >= 0 && b[1] <= 255)
-            && (b[2] >= 0 && b[2] <= 255)
-            && (b[3] >= 0 && b[3] <= 255)
-            ? ((b[0] << 24) | (b[1] << 16) | (b[2] << 8) | b[3]) >>> 0 : null;
-}
-
-function intToIPv4(i) {
-    return (i >> 24 & 0xff) + "." + (i >> 16 & 0xff) + "." + (i >> 8 & 0xff) + "." + (i & 0xff);
-}
-
-function fetchChnIpList(callback, end) {
+function fetchChnIpList(lineCallback, eofCallback) {
     var url = 'http://ftp.apnic.net/apnic/stats/apnic/delegated-apnic-latest';
     var file = 'delegated-apnic-latest';
 
@@ -147,7 +151,7 @@ function fetchChnIpList(callback, end) {
             } else {
                 getChunk(data);
                 getChunk('\n');
-                end(true);
+                eofCallback(true);
             }
         });
     } else {
@@ -160,15 +164,15 @@ function fetchChnIpList(callback, end) {
                 res.on('data', getChunk);
                 res.on('end', function () {
                     getChunk('\n');
-                    end(true);
+                    eofCallback(true);
                 });
                 res.on('error', function (e) {
                     console.info("Fetching data from apnic.net failed:", e);
-                    end(false);
+                    eofCallback(false);
                 });
             } else {
                 console.info("Fetching data from apnic.net failed:", res.statusCode);
-                end(false);
+                eofCallback(false);
             }
         });
     }
@@ -187,9 +191,7 @@ function fetchChnIpList(callback, end) {
             lastChunk = chunk.substring(lastLF + 1);
             chunk = chunk.substring(0, lastLF);
             for (var arr; (arr = pattern.exec(chunk)) !== null;) {
-                var startIp = ip4ToInt(arr[1]);
-                var endIp = startIp + parseInt(arr[2]);
-                callback(startIp, endIp, arr[3]);
+                lineCallback(arr[1], arr[2], arr[3]);
             }
         }
     }

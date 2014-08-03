@@ -61,8 +61,9 @@ if (process.mainModule === module) {
         var FindProxyForURL = pacTester(filename);
         Fiber(function () {
             var proxy = FindProxyForURL(null, host);
-            if (FindProxyForURL.dnsResolveResult) {
-                console.info("Host '%s' was resolved to: %s", host, FindProxyForURL.dnsResolveResult);
+            var ip = FindProxyForURL.dnsResolveResult;
+            if (ip) {
+                console.info("Host '%s' was resolved to: %s (%s)", host, ip, require("../src/ip2int")(ip));
             }
             console.info(proxy);
         }).run();
