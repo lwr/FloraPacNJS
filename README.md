@@ -105,7 +105,7 @@ average: 606.0726647398843 ns
 - [X] Support tests
 - [ ] Support `--proxy / --internal-proxy / --file` command-line arguments
 - [ ] Command-line help
-- [ ] Generate minimal pac file liked `flora.min.pac`
+- ~~Generate minimal pac file liked `flora.min.pac`~~
 - [ ] Support user rule text config file format (will import to `walledDomains / normalDomains`)
 - [ ] Support gfw list file (pac will be much bigger)
 - [ ] Sync China Domains (that is, `normalDomains`) from other where
