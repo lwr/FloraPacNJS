@@ -108,14 +108,15 @@ average: 606.0726647398843 ns
 - ~~Generate minimal pac file liked `flora.min.pac`~~
 - [ ] Support user rule text config file format (will import to `walledDomains / normalDomains`)
 - [ ] Support gfw list file (pac will be much bigger)
-- [ ] Sync China Domains (that is, `normalDomains`) from other where
+- [ ] Sync China Domains (that is, `normalDomains`) with [GFW whitelist]
 
 
 ## See also
 * [Python original Flora Pac][Flora Pac]
 * [Python fork by usufu](https://github.com/usufu/Flora_Pac)
 * [clowwindy's gfwlist2pac][gfwlist2pac]
+* [GFW whitelist]
 
-
-[Flora Pac]:   https://github.com/Leask/Flora_Pac
-[gfwlist2pac]: https://github.com/clowwindy/gfwlist2pac
+[Flora Pac]:     https://github.com/Leask/Flora_Pac
+[gfwlist2pac]:   https://github.com/clowwindy/gfwlist2pac
+[GFW whitelist]: https://github.com/n0wa11/gfw_whitelist
