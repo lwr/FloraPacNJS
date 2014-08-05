@@ -20,7 +20,8 @@ function floraPac(userConfig) {
     var config = JSON.parse(JSON.stringify(baseConfig));
 
     if (userConfig == null) {
-        userConfig = JSON.parse(fs.readFileSync("pac-config.json") || "{}");
+        var configFilename = "pac-config.json";
+        userConfig = JSON.parse(fs.existsSync(configFilename) && fs.readFileSync(configFilename, "utf8") || "{}");
     }
 
     for (var key in userConfig) {
