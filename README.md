@@ -4,13 +4,21 @@ Flora Pac for NodeJS
 A NodeJS port of [Flora PAC] generator.
  
 
-## Requirement / Installation
+## Requirement / Installation / Usage
 
 * NodeJS of course
 
 No any further installation is required
 
-## Configuration / Usage
+````bash
+git clone https://github.com/lwr/FloraPacNJS.git
+# Create your own pac-config.json in current path before you run
+# You could run the command any where, just make sure the second argument points to my project root
+node FloraPacNJS
+````
+
+
+## Configuration
 
 make a config file `pac-config.json` like this
 
