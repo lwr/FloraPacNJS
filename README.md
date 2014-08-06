@@ -1,24 +1,25 @@
-Flora Pac for NodeJS
+Flora Pac for NodeJS [![NPM version](https://badge.fury.io/js/flora-pac.png)](http://badge.fury.io/js/flora-pac)
 ====================
 
 A NodeJS port of [Flora PAC] generator.
  
 
-## Requirement / Installation / Usage
+## Installation / Usage
 
-* NodeJS of course
+1. Install from npm
+    ````bash
+    $ sudo npm install -g flora-pac
+    
+    ````
+2. Create your own `pac-config.json` first (see next chapter)
+3. Run (the default output file is `flora.pac`)
+    ````bash
+    $ flora-pac
+    
+    ````
 
-No any further installation is required
 
-````bash
-git clone https://github.com/lwr/FloraPacNJS.git
-# Create your own pac-config.json in current path before you run
-# You could run the command any where, just make sure the second argument points to my project root
-node FloraPacNJS
-````
-
-
-## Configuration
+## Configurations
 
 make a config file `pac-config.json` like this
 
@@ -43,10 +44,8 @@ check [src/pac-config.js](src/pac-config.js) for more config options available.
 
 All things done with only one command
 ```bash
-$ node .
+$ node <path_to_this_project_root>
 ```
-
-the default output file is `flora.pac`
 
 ## Tests
 

@@ -2,21 +2,24 @@
     "name"            : "flora-pac",
     "version"         : "0.0.1",
     "description"     : "A NodeJS port of Flora PAC generator",
-    "author"          : {
-        "name"  : "William Leung",
-        "email" : "williamleung2006@gmail.com"
+    "author"          : "William Leung <williamleung2006@gmail.com>",
+    "license"         : "MIT",
+    "keywords"        : ["flora", "pac", "proxy.pac"],
+    "bin"             : {
+        "flora-pac" : "./index.js"
     },
     "repository"      : {
         "type" : "git",
-        "url"  : "git://github.com/lwr/FloraPacNJS.git"
+        "url"  : "https://github.com/lwr/FloraPacNJS.git"
+    },
+    "bugs"            : {
+        "url" : "https://github.com/lwr/FloraPacNJS/issues"
+    },
+    "scripts"         : {
+        "test" : "node test/test"
     },
     "devDependencies" : {
         "fibers"   : "~1.0.1",
         "optimist" : "~0.6.0"
-    },
-    "keywords"        : ["flora", "pac", "proxy.pac"],
-    "scripts"         : {
-        "test" : "echo 'Error: no test specified' && exit 1"
-    },
-    "license"         : "MIT"
+    }
 }

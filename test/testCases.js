@@ -13,7 +13,7 @@ function testCases() {
 }
 
 
-function runTestCases(name, FindProxyForURL, proxy) {
+function runTestCases(name, FindProxyForURL, proxy, internalProxy) {
 
     var direct = 'DIRECT';
 
@@ -21,11 +21,15 @@ function runTestCases(name, FindProxyForURL, proxy) {
     var successCount = 0;
     var failCount = 0;
 
+    internalProxy = internalProxy || direct;
+
     function assertProxy(expect, host) {
         ++totalCount;
         FindProxyForURL.dnsResolveResult = null;
-        var actual = FindProxyForURL(null, host);
-        if ((expect == actual) || (expect == proxy && actual == proxy + "; DIRECT")) {
+        var actual = FindProxyForURL(host, host);
+        if ((expect == actual)
+                || (expect == proxy && actual == proxy + "; DIRECT")
+                || (expect == internalProxy && actual == internalProxy + "; DIRECT")) {
             ++successCount;
             return;
         }
@@ -78,12 +82,18 @@ function runTestCases(name, FindProxyForURL, proxy) {
     // noinspection SpellCheckingInspection
     assertProxy(proxy, 'www.userdefined.com');
 
-    assertProxy(direct, 'www.baidu.com');
+    assertProxy(internalProxy, 'www.baidu.com');
     // noinspection SpellCheckingInspection
-    assertProxy(direct, 'www.youku.com');
+    assertProxy(internalProxy, 'www.youku.com');
     // noinspection SpellCheckingInspection
-    assertProxy(direct, 'www.taobao.com');
-    assertProxy(direct, 'www.iCoremail.net');
+    assertProxy(internalProxy, 'www.taobao.com');
+    assertProxy(internalProxy, 'www.iCoremail.net');
+
+    assertProxy(direct, 'simpleName');
+    assertProxy(direct, '127.0.0.1');
+    assertProxy(direct, '127.0.0.255');
+    assertProxy(direct, '192.168.255.255');
+    assertProxy(proxy, '192.169.0.0');
 
     endTest();
 }
