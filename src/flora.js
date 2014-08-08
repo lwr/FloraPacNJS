@@ -10,19 +10,66 @@ var pacTemplate = fs.readFileSync(path.dirname(module.filename) + "/" +
 var baseConfig = require("./pac-config");
 
 if (process.mainModule === module) {
-    floraPac();
+    main();
 }
 
 module.exports = floraPac;
 
-function floraPac(userConfig) {
+floraPac.main = main;
+
+function main() {
+    // a simple test for command-line-arguments-existent that make 'optimist' not really required
+    var argv = (process.argv.length > 2) ? require('optimist')["argv"] : null;
+    if (argv && (argv.help || argv.h)) {
+        console.info(""
+                + "usage: flora-pac [-h] [-f PAC] [-p PROXY] [-c CONFIG]\n"
+                + "\n"
+                + "Valid options:\n"
+                + "  -h [--help]                : show this help message and exit\n"
+                + '  -c [--config] ARG          : path to json format config file\n'
+                + '                               defaults to "pac-config.json" in current dir\n'
+                + '  -f [--file] ARG            : overrides the "file" option of config file\n'
+                + '                               path to output pac\n'
+                + '  -x [--proxy] ARG           : overrides the "proxy" option of config file\n'
+                + '                               the proxy parameter in the pac file, for example,\n'
+                + '                               "SOCKS5 127.0.0.1:7070; SOCKS 127.0.0.1:7070"\n'
+                + '  -i [--internal-proxy] ARG  : overrides the "internalProxy" option of config file\n'
+                + '                               internal proxy server, defaults to "DIRECT", it\'s useful\n'
+                + '                               if you need an internal proxy to access outside network\n'
+                + "");
+        return;
+    }
+    floraPac(null, argv);
+}
+
+
+function readOptions(target, options, key/*, aliasKey1, aliasKey2, ...*/) {
+    if (options) {
+        for (var i = 2; i < arguments.length; i++) {
+            var value = options[arguments[i]];
+            if (value != null) {
+                if (target) {
+                    target[key] = value;
+                }
+                return value;
+            }
+        }
+    }
+}
+
+
+function floraPac(userConfig, options) {
     // do a copy
     var config = JSON.parse(JSON.stringify(baseConfig));
 
     if (userConfig == null) {
-        var configFilename = "pac-config.json";
+        var configFilename = readOptions(null, options, "config", "c") || "pac-config.json";
         userConfig = JSON.parse(fs.existsSync(configFilename) && fs.readFileSync(configFilename, "utf8") || "{}");
     }
+
+    readOptions(userConfig, options, "file", "f");
+    readOptions(userConfig, options, "proxy", "x");
+    readOptions(userConfig, options, "internalProxy", "internal-proxy", "i");
 
     for (var key in userConfig) {
         if (userConfig.hasOwnProperty(key)) {

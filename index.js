@@ -1,9 +1,7 @@
 #!/usr/bin/env node
 
-var floraPac = require('./src/flora.js');
+var floraPac = module.exports = require('./src/flora.js');
 
 if (process.mainModule === module) {
-    floraPac();
+    floraPac.main();
 }
-
-module.exports = floraPac;

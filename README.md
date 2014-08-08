@@ -17,6 +17,11 @@ A NodeJS port of [Flora PAC] generator.
     $ flora-pac
     
     ````
+    or to get some command-line help
+    ````bash
+    $ flora-pac -h
+    
+    ````
 
 
 ## Configurations
@@ -110,8 +115,8 @@ average: 606.0726647398843 ns
 
 ## TODO:
 - [X] Support tests
-- [ ] Support `--proxy / --internal-proxy / --file` command-line arguments
-- [ ] Command-line help
+- [X] Support `--proxy / --internal-proxy / --file` command-line arguments
+- [X] Command-line help
 - ~~Generate minimal pac file liked `flora.min.pac`~~
 - [ ] Support user rule text config file format (will import to `walledDomains / normalDomains`)
 - [ ] Support gfw list file (pac will be much bigger)

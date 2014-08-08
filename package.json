@@ -1,6 +1,6 @@
 {
     "name"            : "flora-pac",
-    "version"         : "0.0.2",
+    "version"         : "0.0.3",
     "description"     : "A NodeJS port of Flora PAC generator",
     "author"          : "William Leung <williamleung2006@gmail.com>",
     "license"         : "MIT",
@@ -18,8 +18,10 @@
     "scripts"         : {
         "test" : "node test/test"
     },
-    "devDependencies" : {
-        "fibers"   : "~1.0.1",
+    "dependencies"    : {
         "optimist" : "~0.6.0"
+    },
+    "devDependencies" : {
+        "fibers" : "~1.0.1"
     }
 }
