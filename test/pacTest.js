@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 /**
  *
  * ---------- usage -------------------------------------------------
@@ -53,7 +55,7 @@ function pacTester(pacFile, context_) {
 // command line mode
 if (process.mainModule === module) {
 
-    var argv = require('optimist').argv;
+    var argv = require('yargs')["argv"];
     var filename = argv._[0];
     var host = argv._[1];
 

@@ -19,7 +19,7 @@ floraPac.main = main;
 
 function main() {
     // a simple test for command-line-arguments-existent that make 'optimist' not really required
-    var argv = (process.argv.length > 2) ? require('optimist')["argv"] : null;
+    var argv = (process.argv.length > 2) ? require('yargs')["argv"] : null;
     if (argv && (argv.help || argv.h)) {
         console.info(""
                 + "usage: flora-pac [-h] [-f PAC] [-p PROXY] [-c CONFIG]\n"

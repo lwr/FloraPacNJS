@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 /**
  * @type {exports} a wrapped fiber function wait to run performance test
  */
@@ -10,8 +12,8 @@ function performanceTest() {
 
 // command line mode
 if (process.mainModule === module) {
-    var filename = require('optimist').argv._[0];
-    var repeat = require('optimist').argv._[1];
+    var filename = require('yargs')["argv"]._[0];
+    var repeat = require('yargs')["argv"]._[1];
 
     // noinspection JSUnusedGlobalSymbols
     var FindProxyForURL = require("./pacTest")(filename, {
