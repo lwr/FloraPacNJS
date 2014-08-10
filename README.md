@@ -9,12 +9,15 @@ A NodeJS port of [Flora PAC] generator.
 1. Install from npm
     ````bash
     $ sudo npm install -g flora-pac
-    ````
+    ```` 
+
 2. Create your own `pac-config.json` first (see next chapter)
+
 3. Run (the default output file is `flora.pac`)
     ````bash
     $ flora-pac
-    ````
+    ```` 
+
     or to get some command-line help
     ````bash
     $ flora-pac -h
