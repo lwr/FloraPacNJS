@@ -9,18 +9,15 @@ A NodeJS port of [Flora PAC] generator.
 1. Install from npm
     ````bash
     $ sudo npm install -g flora-pac
-    
     ````
 2. Create your own `pac-config.json` first (see next chapter)
 3. Run (the default output file is `flora.pac`)
     ````bash
     $ flora-pac
-    
     ````
     or to get some command-line help
     ````bash
     $ flora-pac -h
-    
     ````
 
 
@@ -68,7 +65,7 @@ $ node test/test
 ```
 
 
-## To speed up the generation time
+## Speed up the generation time
 
 The CHN IP is requested from apnic
 
@@ -114,13 +111,13 @@ average: 606.0726647398843 ns
 
 
 ## TODO:
-- [X] Support tests
-- [X] Support `--proxy / --internal-proxy / --file` command-line arguments
-- [X] Command-line help
-- ~~Generate minimal pac file liked `flora.min.pac`~~
-- [ ] Support user rule text config file format (will import to `walledDomains / normalDomains`)
-- [ ] Support gfw list file (pac will be much bigger)
-- [ ] Sync China Domains (that is, `normalDomains`) with [GFW whitelist]
+- [X] Add tests
+- [X] Add command-line: `--help / --proxy / --internal-proxy / --file / ...`
+- ~~Generate minimal pac file, etc: `flora.min.pac` (meaningless, cancelled)~~
+- [ ] Add supports for text config file to define user domains rather than general json
+- [ ] Add supports for import domains from [GFW whitelist]: `whitelist.pac` (smaller)
+- [ ] Add supports for import domains from [fqdns]: `china_domains.txt` (much bigger)
+- [ ] Add supports for import domains from [gfwlist.txt] (blacklist, much bigger)
 
 
 ## See also
@@ -128,7 +125,11 @@ average: 606.0726647398843 ns
 * [Python fork by usufu](https://github.com/usufu/Flora_Pac)
 * [clowwindy's gfwlist2pac][gfwlist2pac]
 * [GFW whitelist]
+* [fqrouter/fqdns][fqdns]
 
 [Flora Pac]:     https://github.com/Leask/Flora_Pac
 [gfwlist2pac]:   https://github.com/clowwindy/gfwlist2pac
+[gfwlist.txt]:   https://autoproxy-gfwlist.googlecode.com/svn/trunk/gfwlist.txt
 [GFW whitelist]: https://github.com/n0wa11/gfw_whitelist
+[fqdns]:         https://github.com/fqrouter/fqdns
+
