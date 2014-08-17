@@ -90,7 +90,7 @@ function floraPac(userConfig, options) {
         }
     }, function (ok) {
         if (ok) {
-            var pacData = generatePac(config);
+            var pacData = generatePac(config, options || {});
             fs.writeFileSync(config.file, pacData, {encoding : 'utf8'});
             console.log("File generated:", config.file);
             if (config.callback) {
@@ -101,7 +101,7 @@ function floraPac(userConfig, options) {
 }
 
 
-function generatePac(config) {
+function generatePac(config, options) {
     // 1: LOCAL (INTRANET), 2: NORMAL (CHINA-NET), 3: GFWed (INTERNET), 4: poisoned
     for (var key in config) {
         if (!config.hasOwnProperty(key)) {
@@ -153,21 +153,28 @@ function generatePac(config) {
         });
     }
 
-    config["ips"].sort(function (r1, r2) {return r1[0] - r2[0]});
-    config["ips"].forEach(function (item, i, ips) {
-        var previousItem = ips[i - 1];
-        if (i > 0 && (ips[0] < previousItem[0] + previousItem[1])) {
-            console.error("Collapsed ip: [%s ~ %s], [%s ~ %s]",
-                    ip4ToInt(previousItem[0]), ip4ToInt(previousItem[0] + previousItem[1]),
-                    ip4ToInt(item[0]), ip4ToInt(item[0] + item[1]));
+    config["ips"] = sortIpList(config["ips"]);
+    config["ips"].forEach(function (item2, i, ips) {
+        if (i > 0) {
+            var item1 = ips[i - 1];
+            var value1 = item1[2] || 2;
+            var value2 = item2[2] || 2;
+            if ((item2[0] < item1[0] + item1[1])) {
+                console.error("Collapsed ip: [%s - %s] : %d, [%s - %s] : %d",
+                        intToIP4(item1[0]), intToIP4(item1[0] + item1[1] - 1), value1,
+                        intToIP4(item2[0]), intToIP4(item2[0] + item2[1] - 1), value2);
+            }
+            if ((item2[0] == item1[0] + item1[1]) && (value1 == value2)) {
+                console.warn("ip can be merge: [%s - %s] : %d, [%s - %s] : %d",
+                        intToIP4(item1[0]), intToIP4(item1[0] + item1[1] - 1), value1,
+                        intToIP4(item2[0]), intToIP4(item2[0] + item2[1] - 1), value2);
+            }
         }
-        if (i > 0 && (ips[0] == previousItem[0] + previousItem[1])) {
-            console.info("ip can be merge: [%s ~ %s], [%s ~ %s]",
-                    ip4ToInt(previousItem[0]), ip4ToInt(previousItem[0] + previousItem[1]),
-                    ip4ToInt(item[0]), ip4ToInt(item[0] + item[1]));
+        if (options["dump-ip"]) {
+            console.info("[%s - %s] : %d / count=%d",
+                    intToIP4(item2[0]), intToIP4(item2[0] + item2[1] - 1), item2[2] || 2, item2[1]);
         }
     });
-
 
     config["proxies"] = [
         null,                                                                               // 0: UNKNOWN
@@ -186,6 +193,70 @@ function generatePac(config) {
         }
     }
     return result;
+}
+
+
+function sortIpList(ips) {
+    // item: [startIp (int), count (int), value (int)]
+    while (true) {
+        ips.sort(function (r1, r2) {return r1[0] - r2[0]});
+        var changed = false;
+        var result = [];
+        // detect collapsed and break into more ranges
+        for (var i = 0; i < ips.length; i++) {
+            var item1 = ips[i];
+            var item2 = ips[i + 1];
+            if (item2 && (item2[0] < item1[0] + item1[1])) {
+                if (item1[0] == item2[0] && item1[1] < item2[1]) {
+                    var temp = item1;
+                    item1 = item2;
+                    item2 = temp;
+                }
+                // item1[0] <= item2[0] <= item2[0] + item2[1] <= item1[0] + item1[1]
+                var r1 = [item1[0], item2[0] - item1[0]];
+                var r2 = item2;
+                var r3 = [item2[0] + item2[1], item1[0] + item1[1] - item2[0] - item2[1]];
+                if (r1[1] >= 0 && r3[1] >= 0) {
+                    if (item1[2] != 2) {
+                        r1[2] = r3[2] = item1[2];
+                    }
+                    if (r1[1] > 0) {
+                        result.push(r1);
+                    }
+                    result.push(r2);
+                    if (r3[1] > 0) {
+                        result.push(r3);
+                    }
+                    ++i;
+                    changed = true;
+                    continue;
+                }
+            }
+            result.push(ips[i]);
+        }
+
+        if (changed) {
+            ips = result;
+        } else {
+            return mergeNeighbors(ips);
+        }
+    }
+
+    function mergeNeighbors(ips) {
+        var result = [];
+        for (var i = 0; i < ips.length; i++) {
+            var item1 = ips[i];
+            var item2 = ips[i + 1];
+            var value = item1[2] || 2;
+            while (item2 && (value == (item2[2] || 2)) && (item2[0] <= item1[0] + item1[1])) {
+                item1[1] = Math.max(item1[1], item2[0] + item2[1] - item1[0]);
+                ++i;
+                item2 = ips[i + 1];
+            }
+            result.push(item1);
+        }
+        return result;
+    }
 }
 
 function fetchChnIpList(lineCallback, eofCallback) {
