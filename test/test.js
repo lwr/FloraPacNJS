@@ -10,6 +10,7 @@ floraPac({
     file          : "./flora-test.pac",
     internalProxy : "INTERNAL",
     proxy         : "PROXY",
+    fakeIps       : ["127.0.0.1"],
     callback      : function () {
         // generate the pac adaptor function from pac file
         var FindProxyForURL = require("./pacTest")(this.file);

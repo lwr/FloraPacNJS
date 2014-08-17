@@ -41,9 +41,13 @@ function FindProxyForURL(url, host) {
 
     function findIp() {
         // noinspection JSUnresolvedFunction
-        var intIp = ip4ToInt(host) || ip4ToInt(dnsResolve(host) || "");
-        if (intIp == null) {
-            return 0;
+        var intIp = ip4ToInt(host);
+        var hostIsIp = (intIp != null);
+        if (!hostIsIp) {
+            intIp = ip4ToInt(dnsResolve(host) || "");
+            if (intIp == null) {
+                return 0;
+            }
         }
 
         var left = 0, right = ips.length;
@@ -54,7 +58,9 @@ function FindProxyForURL(url, host) {
             } else if (intIp >= ips[mid][0] + ips[mid][1]) {
                 left = mid + 1;
             } else {
-                return ips[mid][2] || 2; // default is normalIps
+                var result = ips[mid][2] || 2; // default is normalIps
+                // pass through fake ip (like 127.0.0.1) direct accessing
+                return (hostIsIp && result == 4) ? 1 : result;
             }
         } while (left + 1 <= right);
         return 0;
