@@ -46,6 +46,8 @@ make a config file `pac-config.json` like this
 
 check [src/pac-config.js](src/pac-config.js) for more config options available.
 
+INI format is also supported, check [this sample](pac-config.ini) for more details
+
 
 All things done with only one command
 ```bash
@@ -117,7 +119,7 @@ average: 606.0726647398843 ns
 - [X] Add tests
 - [X] Add command-line: `--help / --proxy / --internal-proxy / --file / ...`
 - ~~Generate minimal pac file, etc: `flora.min.pac` (meaningless, cancelled)~~
-- [ ] Add supports for text config file to define user domains rather than general json
+- [X] Add supports for INI config file rather than general json
 - [ ] Add supports for import domains from [GFW whitelist]: `whitelist.pac` (smaller)
 - [ ] Add supports for import domains from [fqdns]: `china_domains.txt` (much bigger)
 - [ ] Add supports for import domains from [gfwlist.txt] (blacklist, much bigger)

@@ -26,7 +26,7 @@ function main() {
                 + "\n"
                 + "Valid options:\n"
                 + "  -h [--help]                : show this help message and exit\n"
-                + '  -c [--config] ARG          : path to json format config file\n'
+                + '  -c [--config] ARG          : path to json/ini format config file\n'
                 + '                               defaults to "pac-config.json" in current dir\n'
                 + '  -f [--file] ARG            : overrides the "file" option of config file\n'
                 + '                               path to output pac\n'
@@ -58,13 +58,40 @@ function readOptions(target, options, key/*, aliasKey1, aliasKey2, ...*/) {
 }
 
 
+function readConfig(configFile) {
+    if (configFile || ["pac-config.json", "pac-config.ini"].some(function (f) {
+        if (fs.existsSync(f)) {
+            configFile = f;
+            return true;
+        }
+    })) {
+        console.log("Using config file: " + configFile);
+        var content = fs.readFileSync(configFile, "utf8");
+        if (configFile.match(/\.ini$/)) {
+            var iniConf = require("ini").parse(content) || {};
+            var result = iniConf["pac-config"] || {};
+            for (var section in iniConf) {
+                if (iniConf.hasOwnProperty(section) && (section != "pac-config")) {
+                    if (section.match((/(Domains|Ips)$/))) {
+                        result[section] = Object.keys(iniConf[section]);
+                    } else {
+                        result[section] = iniConf[section];
+                    }
+                }
+            }
+            return result;
+        }
+        return JSON.parse(content || "{}");
+    }
+}
+
+
 function floraPac(userConfig, options) {
     // do a copy
     var config = JSON.parse(JSON.stringify(baseConfig));
 
     if (userConfig == null) {
-        var configFilename = readOptions(null, options, "config", "c") || "pac-config.json";
-        userConfig = JSON.parse(fs.existsSync(configFilename) && fs.readFileSync(configFilename, "utf8") || "{}");
+        userConfig = readConfig(readOptions(null, options, "config", "c")) || {};
     }
 
     readOptions(userConfig, options, "file", "f");
