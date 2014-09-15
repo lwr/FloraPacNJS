@@ -1,6 +1,6 @@
 {
     "name"            : "flora-pac",
-    "version"         : "0.0.6",
+    "version"         : "0.0.7",
     "description"     : "A NodeJS port of Flora PAC generator",
     "author"          : "William Leung <williamleung2006@gmail.com>",
     "license"         : "MIT",
@@ -10,7 +10,7 @@
     },
     "repository"      : {
         "type" : "git",
-        "url"  : "git+https://github.com/lwr/FloraPacNJS"
+        "url"  : "https://github.com/lwr/FloraPacNJS.git"
     },
     "bugs"            : {
         "url" : "https://github.com/lwr/FloraPacNJS/issues"
