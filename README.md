@@ -26,28 +26,30 @@ A NodeJS port of [Flora PAC] generator.
 
 ## Configurations
 
-make a config file `pac-config.json` like this
+Make a config file `pac-config.ini` like this
 
-```json
-{
-    "proxy"         : "SOCKS5 127.0.0.1:7070; SOCKS 127.0.0.1:7070",
-    "normalDomains" : [
-        "baidu.com", "v2ex.com"
-    ],
-    "walledDomains" : [
-        "google.com", "youtube.com", 
-        "twitter.com", "facebook.com"
-    ],
-    "fakeIps" : [
-        "211.98.70.194", "211.98.70.195"
-    ]
-}
+```ini
+[ROOT]
+proxy = "SOCKS5 127.0.0.1:7070; SOCKS 127.0.0.1:7070"
+
+[fakeIps]
+211.98.70.194
+211.98.70.195
+
+[normalDomains]
+baidu.com
+
+[walledDomains]
+v2ex.com
+google.com
+youtube.com
+twitter.com
+facebook.com
 ```
 
-check [src/pac-config.js](src/pac-config.js) for more config options available.
+You could find more available options from [src/pac-config.js](src/pac-config.js).
 
-INI format is also supported, check [this sample](pac-config.ini) for more details
-
+Now INI / JSON file formats are both supported.
 
 All things done with only one command
 ```bash
